@@ -4,19 +4,42 @@ import dotenv from 'dotenv';
 // Load environment variables
 dotenv.config({ path: './config.env' });
 
-// Database configuration (supporting Railway env var aliases)
-const dbConfig = {
-  host: process.env.MYSQL_HOST || process.env.MYSQLHOST || process.env.DB_HOST || '127.0.0.1',
-  user: process.env.MYSQL_USER || process.env.MYSQLUSER || process.env.DB_USER || 'root',
-  password: process.env.MYSQL_PASSWORD || process.env.MYSQLPASSWORD || process.env.DB_PASSWORD || '',
-  database: process.env.MYSQL_DATABASE || process.env.MYSQLDATABASE || process.env.DB_NAME || 'hidupku_db',
-  port: Number(process.env.MYSQL_PORT || process.env.MYSQLPORT || process.env.DB_PORT || 3306),
-  waitForConnections: true,
-  connectionLimit: 10,
-  queueLimit: 0,
-  // Force IPv4 to avoid ::1 resolution issues
-  enableKeepAlive: true
-};
+// Build database configuration (supporting Railway and URL-based env)
+function buildDbConfig() {
+  const url = process.env.DATABASE_URL || process.env.CLEARDB_DATABASE_URL || process.env.JAWSDB_URL || '';
+  if (url) {
+    try {
+      const parsed = new URL(url);
+      return {
+        host: parsed.hostname,
+        user: parsed.username,
+        password: parsed.password,
+        database: parsed.pathname?.replace(/^\//, '') || undefined,
+        port: Number(parsed.port || 3306),
+        waitForConnections: true,
+        connectionLimit: 10,
+        queueLimit: 0,
+        enableKeepAlive: true
+      };
+    } catch (_) {
+      // fall through to env-based config
+    }
+  }
+
+  return {
+    host: process.env.MYSQL_HOST || process.env.MYSQLHOST || process.env.DB_HOST || '127.0.0.1',
+    user: process.env.MYSQL_USER || process.env.MYSQLUSER || process.env.DB_USER || 'root',
+    password: process.env.MYSQL_PASSWORD || process.env.MYSQLPASSWORD || process.env.DB_PASSWORD || '',
+    database: process.env.MYSQL_DATABASE || process.env.MYSQLDATABASE || process.env.DB_NAME || 'hidupku_db',
+    port: Number(process.env.MYSQL_PORT || process.env.MYSQLPORT || process.env.DB_PORT || 3306),
+    waitForConnections: true,
+    connectionLimit: 10,
+    queueLimit: 0,
+    enableKeepAlive: true
+  };
+}
+
+const dbConfig = buildDbConfig();
 
 // Create connection pool
 const pool = mysql.createPool(dbConfig);

@@ -18,8 +18,10 @@ import FacilitiesServiceOSMFast from './facilities-service-osm-fast.js';
 import FacilitiesServiceCache from './facilities-service-cache.js';
 
 
-// Load environment variables
-dotenv.config({ path: './config.env' });
+// Load environment variables from file only in non-production
+if (process.env.NODE_ENV !== 'production') {
+  dotenv.config({ path: './config.env' });
+}
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
