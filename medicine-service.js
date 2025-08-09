@@ -2,17 +2,44 @@ import mysql from 'mysql2/promise';
 import dotenv from 'dotenv';
 import { GoogleGenAI } from '@google/genai';
 
-// Load environment variables
-dotenv.config({ path: './config.env' });
+// Load environment variables (only from file in non-production)
+if (process.env.NODE_ENV !== 'production') {
+  dotenv.config({ path: './config.env' });
+}
 
-// Database configuration
-const dbConfig = {
-  host: process.env.MYSQL_HOST || 'localhost',
-  user: process.env.MYSQL_USER || 'root',
-  password: process.env.MYSQL_PASSWORD || '',
-  database: process.env.MYSQL_DATABASE || 'hidupku_db',
-  port: process.env.MYSQL_PORT || 3306
-};
+// Build DB config with Railway-friendly precedence
+function buildDbConfig() {
+  const url =
+    process.env.bismillah ||
+    process.env.BISMILLAH ||
+    process.env.DATABASE_URL ||
+    process.env.MYSQL_URL ||
+    process.env.MYSQL_PUBLIC_URL ||
+    '';
+  if (url) {
+    try {
+      const parsed = new URL(url);
+      return {
+        host: parsed.hostname,
+        user: parsed.username,
+        password: parsed.password,
+        database: parsed.pathname?.replace(/^\//, '') || undefined,
+        port: Number(parsed.port || 3306)
+      };
+    } catch (_) {
+      // ignore and fall back below
+    }
+  }
+  return {
+    host: process.env.MYSQL_HOST || process.env.MYSQLHOST || '127.0.0.1',
+    user: process.env.MYSQL_USER || process.env.MYSQLUSER || 'root',
+    password: process.env.MYSQL_PASSWORD || process.env.MYSQLPASSWORD || '',
+    database: process.env.MYSQL_DATABASE || process.env.MYSQLDATABASE || 'hidupku_db',
+    port: Number(process.env.MYSQL_PORT || process.env.MYSQLPORT || 3306)
+  };
+}
+
+const dbConfig = buildDbConfig();
 
 // Initialize Gemini AI
 const genAI = new GoogleGenAI({
