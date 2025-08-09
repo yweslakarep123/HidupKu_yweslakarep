@@ -1,7 +1,6 @@
 import express from 'express';
 import cors from 'cors';
 import bodyParser from 'body-parser';
-import session from 'express-session';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import dotenv from 'dotenv';
@@ -45,24 +44,10 @@ app.use(bodyParser.json({ limit: '10mb' }));
 app.use(bodyParser.urlencoded({ extended: true, limit: '10mb' }));
 app.use(express.static(join(__dirname, 'public')));
 
-// Trust proxy for secure cookies behind Railway/Proxies
+// Trust proxy for correct IPs/protocols behind Railway/Proxies
 if (isProduction) {
   app.set('trust proxy', 1);
 }
-
-// Session configuration (production-safe)
-app.use(session({
-  name: 'hidupku.sid',
-  secret: process.env.SESSION_SECRET || process.env.JWT_SECRET || 'hidupku_secret',
-  resave: false,
-  saveUninitialized: false,
-  cookie: {
-    httpOnly: true,
-    secure: isProduction,
-    sameSite: isProduction ? 'none' : 'lax',
-    maxAge: 24 * 60 * 60 * 1000
-  }
-}));
 
 // Multer configuration for image uploads
 const upload = multer({
@@ -115,7 +100,7 @@ const genAI = new GoogleGenAI({
 // Authentication middleware
 const authenticateToken = (req, res, next) => {
   const authHeader = req.headers.authorization;
-  const token = authHeader?.split(' ')[1] || req.session.token;
+  const token = authHeader?.split(' ')[1] || req.session?.token;
   
   if (!token) {
     return res.status(401).json({ error: 'Access token required' });
