@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HidupKu - Konsultan Kesehatan AI</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <i class="fas fa-heartbeat"></i>
+                <span>HidupKu</span>
+            </div>
+            <div class="nav-menu" id="nav-menu">
+                <div class="nav-item" id="nav-home">
+                    <a href="#home">Beranda</a>
+                </div>
+                <div class="nav-item" id="nav-chat" style="display: none;">
+                    <a href="#chat">Konsultasi</a>
+                </div>
+                <div class="nav-item" id="nav-history" style="display: none;">
+                    <a href="#history">Riwayat</a>
+                </div>
+                <div class="nav-item" id="nav-medicine" style="display: none;">
+                    <a href="#medicine">Obat</a>
+                </div>
+                <div class="nav-item" id="nav-facilities" style="display: none;">
+                    <a href="#facilities">Fasilitas</a>
+                </div>
+                <div class="nav-item" id="nav-profile" style="display: none;">
+                    <a href="#profile">Profil</a>
+                </div>
+            </div>
+            <div class="nav-auth" id="nav-auth">
+                <button class="btn btn-primary" id="login-btn">Masuk</button>
+                <button class="btn btn-secondary" id="register-btn">Daftar</button>
+            </div>
+            <div class="nav-user" id="nav-user" style="display: none;">
+                <span id="user-name"></span>
+                <button class="btn btn-outline" id="logout-btn">Keluar</button>
+            </div>
+            <div class="hamburger" id="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Home Section -->
+        <section id="home" class="section active">
+            <div class="container">
+                <!-- Hero Section -->
+                <div class="hero">
+                    <div class="hero-content">
+                        <h1 class="hero-title">
+                            Konsultasi Kesehatan dengan
+                            <span class="highlight">Konsultan Kesehatan Otomatis</span>
+                        </h1>
+                        <p class="hero-description">
+                            Platform kesehatan digital revolusioner yang menghubungkan Anda dengan konsultan kesehatan otomatis 24/7. 
+                            Dapatkan saran kesehatan personal, informasi obat, dan pencarian fasilitas kesehatan dalam satu aplikasi.
+                        </p>
+                        <div class="hero-features">
+                            <div class="feature">
+                                <i class="fas fa-robot"></i>
+                                <span>Konsultan Otomatis 24/7</span>
+                            </div>
+                            <div class="feature">
+                                <i class="fas fa-history"></i>
+                                <span>Riwayat Konsultasi</span>
+                            </div>
+                            <div class="feature">
+                                <i class="fas fa-shield-alt"></i>
+                                <span>Privasi Terjamin</span>
+                            </div>
+                        </div>
+                        <div class="hero-actions">
+                            <button class="btn btn-primary btn-large" id="start-consultation">
+                                Mulai Konsultasi
+                            </button>
+                            <button class="btn btn-outline btn-large" id="learn-more">
+                                Pelajari Lebih Lanjut
+                            </button>
+                        </div>
+                    </div>
+                    <div class="hero-image">
+                        <div class="health-illustration">
+                            <i class="fas fa-user-md"></i>
+                            <i class="fas fa-heartbeat pulse"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Problem & Solution Section -->
+                <div class="problem-solution-section">
+                    <div class="problem-section">
+                        <h2 class="section-title">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            Permasalahan Kesehatan yang Kami Atasi
+                        </h2>
+                        <div class="problem-grid">
+                            <div class="problem-card">
+                                <div class="problem-icon">
+                                    <i class="fas fa-clock"></i>
+                                </div>
+                                <h3>Akses Kesehatan Terbatas</h3>
+                                <p>Banyak masyarakat kesulitan mengakses layanan kesehatan karena jarak, waktu, dan biaya yang tinggi.</p>
+                            </div>
+                            <div class="problem-card">
+                                <div class="problem-icon">
+                                    <i class="fas fa-question-circle"></i>
+                                </div>
+                                <h3>Informasi Kesehatan Tidak Akurat</h3>
+                                <p>Informasi kesehatan di internet sering tidak terverifikasi dan dapat menyesatkan masyarakat.</p>
+                            </div>
+                            <div class="problem-card">
+                                <div class="problem-icon">
+                                    <i class="fas fa-pills"></i>
+                                </div>
+                                <h3>Kesulitan Informasi Obat</h3>
+                                <p>Masyarakat kesulitan mendapatkan informasi lengkap tentang obat, efek samping, dan interaksi.</p>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div class="solution-section">
+                        <h2 class="section-title">
+                            <i class="fas fa-lightbulb"></i>
+                            Solusi Komprehensif HidupKu
+                        </h2>
+                        <div class="solution-grid">
+                            <div class="solution-card">
+                                <div class="solution-icon">
+                                    <i class="fas fa-robot"></i>
+                                </div>
+                                <h3>Konsultan Kesehatan Otomatis</h3>
+                                <p>AI canggih yang memberikan konsultasi kesehatan 24/7 dengan akurasi tinggi, menggantikan kebutuhan konsultasi langsung untuk masalah kesehatan umum.</p>
+                            </div>
+                            <div class="solution-card">
+                                <div class="solution-icon">
+                                    <i class="fas fa-search"></i>
+                                </div>
+                                <h3>Database Obat Terlengkap</h3>
+                                <p>Informasi obat yang komprehensif dengan detail efek samping, interaksi, dan panduan penggunaan yang aman.</p>
+                            </div>
+                            <div class="solution-card">
+                                <div class="solution-icon">
+                                    <i class="fas fa-hospital"></i>
+                                </div>
+                                <h3>Pencarian Fasilitas Kesehatan</h3>
+                                <p>Direktori fasilitas kesehatan terdekat dengan informasi lengkap untuk memudahkan akses ke layanan kesehatan.</p>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Features Section -->
+                <div class="features-section">
+                    <h2 class="section-title">
+                        <i class="fas fa-star"></i>
+                        Fitur Unggulan HidupKu
+                    </h2>
+                    <div class="features-grid">
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <i class="fas fa-brain"></i>
+                            </div>
+                            <h3>AI Konsultan Cerdas</h3>
+                            <p>Konsultan kesehatan otomatis berbasis AI yang dapat menganalisis gejala, memberikan diagnosis awal, dan saran perawatan yang personal.</p>
+                            <ul class="feature-list">
+                                <li>Analisis gejala berdasarkan input teks dan gambar</li>
+                                <li>Diagnosis awal dengan tingkat akurasi tinggi</li>
+                                <li>Saran perawatan dan rekomendasi obat</li>
+                                <li>Respons 24/7 tanpa batas waktu</li>
+                            </ul>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <i class="fas fa-database"></i>
+                            </div>
+                            <h3>Database Obat Terlengkap</h3>
+                            <p>Sistem pencarian obat yang komprehensif dengan informasi detail untuk membantu pengguna membuat keputusan yang tepat.</p>
+                            <ul class="feature-list">
+                                <li>Informasi lengkap obat dan suplemen</li>
+                                <li>Detail efek samping dan kontraindikasi</li>
+                                <li>Informasi interaksi antar obat</li>
+                                <li>Panduan penggunaan yang aman</li>
+                            </ul>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <i class="fas fa-map-marker-alt"></i>
+                            </div>
+                            <h3>Pencarian Fasilitas Kesehatan</h3>
+                            <p>Fitur pencarian fasilitas kesehatan terdekat dengan informasi lengkap untuk memudahkan akses ke layanan kesehatan.</p>
+                            <ul class="feature-list">
+                                <li>Deteksi lokasi otomatis</li>
+                                <li>Informasi rumah sakit, klinik, dan apotek</li>
+                                <li>Filter berdasarkan jenis fasilitas</li>
+                                <li>Informasi jarak dan rute</li>
+                            </ul>
+                        </div>
+
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <i class="fas fa-history"></i>
+                            </div>
+                            <h3>Riwayat Konsultasi</h3>
+                            <p>Sistem penyimpanan riwayat konsultasi yang memungkinkan pengguna melacak perkembangan kesehatan mereka.</p>
+                            <ul class="feature-list">
+                                <li>Riwayat lengkap konsultasi</li>
+                                <li>Pelacakan perkembangan gejala</li>
+                                <li>Referensi konsultasi sebelumnya</li>
+                                <li>Ekspor data kesehatan</li>
+                            </ul>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <i class="fas fa-shield-alt"></i>
+                            </div>
+                            <h3>Keamanan & Privasi</h3>
+                            <p>Sistem keamanan tingkat tinggi untuk melindungi data kesehatan pengguna dengan enkripsi end-to-end.</p>
+                            <ul class="feature-list">
+                                <li>Enkripsi data end-to-end</li>
+                                <li>Kepatuhan standar kesehatan</li>
+                                <li>Kontrol privasi pengguna</li>
+                                <li>Backup data otomatis</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Impact Section -->
+                <div class="impact-section">
+                    <h2 class="section-title">
+                        <i class="fas fa-chart-line"></i>
+                        Dampak Positif HidupKu
+                    </h2>
+                    <div class="impact-grid">
+                        <div class="impact-card">
+                            <div class="impact-number">24/7</div>
+                            <h3>Akses Kesehatan</h3>
+                            <p>Layanan kesehatan tersedia setiap saat tanpa batas waktu dan jarak</p>
+                        </div>
+                        <div class="impact-card">
+                            <div class="impact-number">90%+</div>
+                            <h3>Akurasi Diagnosis</h3>
+                            <p>Tingkat akurasi tinggi dalam memberikan diagnosis awal dan saran perawatan</p>
+                        </div>
+                        <div class="impact-card">
+                            <div class="impact-number">50%+</div>
+                            <h3>Penghematan Biaya</h3>
+                            <p>Mengurangi biaya konsultasi untuk masalah kesehatan umum</p>
+                        </div>
+                        <div class="impact-card">
+                            <div class="impact-number">100%</div>
+                            <h3>Privasi Terjamin</h3>
+                            <p>Data kesehatan pengguna terlindungi dengan sistem keamanan tingkat tinggi</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Chat Section -->
+        <section id="chat" class="section">
+            <div class="container">
+                <div class="chat-container">
+                    <div class="chat-header">
+                        <h2>Konsultasi dengan Konsultan Kesehatan Otomatis</h2>
+                        <p>Ceritakan keluhan Anda dan dapatkan saran kesehatan yang tepat</p>
+                        <button class="btn btn-outline" id="new-chat-btn" style="margin-top: 10px;">
+                            <i class="fas fa-plus"></i> New Chat
+                        </button>
+                    </div>
+                    <div class="chat-messages" id="chat-messages">
+                        <div class="message ai-message">
+                            <div class="message-avatar">
+                                <i class="fas fa-robot"></i>
+                            </div>
+                            <div class="message-content">
+                                <p>Halo! Saya adalah konsultan kesehatan otomatis HidupKu. Saya siap membantu Anda dengan konsultasi kesehatan.</p>
+                                <p>Silakan ceritakan keluhan atau gejala yang Anda alami saat ini. Anda juga dapat mengirimkan gambar untuk analisis lebih lanjut.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="chat-input">
+                        <div class="input-container">
+                            <div class="input-actions">
+                                <button class="upload-btn" id="upload-image" title="Upload Gambar">
+                                    <i class="fas fa-image"></i>
+                                </button>
+                                <input type="file" id="image-input" accept="image/*" style="display: none;">
+                            </div>
+                            <div class="input-wrapper">
+                                <textarea 
+                                    id="message-input" 
+                                    placeholder="Ketik pesan Anda di sini atau upload gambar untuk analisis..."
+                                    rows="1"
+                                ></textarea>
+                                <div class="image-preview" id="image-preview" style="display: none;">
+                                    <img id="preview-img" src="" alt="Preview">
+                                    <button class="remove-image" id="remove-image">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <button class="send-btn" id="send-message">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                        <div class="drag-drop-area" id="drag-drop-area">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <p>Drag & drop gambar di sini atau klik untuk upload</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- History Section -->
+        <section id="history" class="section">
+            <div class="container">
+                <div class="history-header">
+                    <h2>Riwayat Konsultasi</h2>
+                    <p>Lihat dan lanjutkan konsultasi sebelumnya</p>
+                    <button class="btn btn-outline" id="clear-all-history" style="display: none;">
+                        <i class="fas fa-trash"></i>
+                        Hapus Semua Riwayat
+                    </button>
+                </div>
+                <div class="history-list" id="history-list">
+                    <!-- Chat history will be loaded here -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Medicine Search Section -->
+        <section id="medicine" class="section">
+            <div class="container">
+                <h2>Pencarian Obat</h2>
+                <div class="medicine-search-container">
+                    <div class="search-box">
+                        <input type="text" id="medicine-search-input" placeholder="Cari obat... (contoh: sakit kepala, demam, alergi)">
+                        <button id="medicine-search-btn">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="search-filters">
+                        <select id="medicine-type-filter">
+                            <option value="">Semua Jenis</option>
+                            <option value="bebas">Obat Bebas</option>
+                            <option value="bebas_terbatas">Obat Bebas Terbatas</option>
+                            <option value="keras">Obat Keras</option>
+                        </select>
+                        <select id="medicine-category-filter">
+                            <option value="">Semua Kategori</option>
+                        </select>
+                    </div>
+                    
+
+                    
+                    <div id="medicine-results" class="medicine-results">
+                        <!-- Results will be displayed here -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Healthcare Facilities Section -->
+        <section id="facilities" class="section">
+            <div class="container">
+                <h2>Fasilitas Kesehatan Terdekat</h2>
+                <div class="facilities-search-container">
+                    <div class="location-input-container">
+                        <div class="location-input-group">
+                            <input type="text" id="location-input" placeholder="Masukkan alamat atau nama tempat...">
+                            <button id="detect-location-btn" class="btn btn-primary">
+                                <i class="fas fa-location-arrow"></i>
+                                Deteksi Lokasi
+                            </button>
+                        </div>
+                        <div class="location-status" id="location-status">
+                            <i class="fas fa-info-circle"></i>
+                            <span>Masukkan alamat atau gunakan deteksi lokasi otomatis</span>
+                        </div>
+                    </div>
+                    
+                    <div class="facilities-filters">
+                        <select id="facility-type-filter">
+                            <option value="">Semua Fasilitas</option>
+                            <option value="hospital">Rumah Sakit</option>
+                            <option value="pharmacy">Apotek</option>
+                            <option value="clinic">Klinik</option>
+                            <option value="health_center">Puskesmas</option>
+                        </select>
+                        <select id="distance-filter">
+                            <option value="5">Dalam 5 km</option>
+                            <option value="10" selected>Dalam 10 km</option>
+                            <option value="20">Dalam 20 km</option>
+                            <option value="50">Dalam 50 km</option>
+                        </select>
+                    </div>
+                    
+                    <div id="facilities-results" class="facilities-results">
+                        <!-- Results will be displayed here -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+
+        <!-- Profile Section -->
+        <section id="profile" class="section">
+            <div class="container">
+                <div class="profile-container">
+                    <div class="profile-header">
+                        <div class="profile-avatar">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <h2 id="profile-name">Nama Pengguna</h2>
+                        <p id="profile-email">email@example.com</p>
+                    </div>
+                    <div class="profile-stats">
+                        <div class="stat-card">
+                            <i class="fas fa-comments"></i>
+                            <div class="stat-info">
+                                <h3 id="total-chats">0</h3>
+                                <p>Total Konsultasi</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <i class="fas fa-calendar"></i>
+                            <div class="stat-info">
+                                <h3 id="member-since">-</h3>
+                                <p>Bergabung Sejak</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modals -->
+    <!-- Login Modal -->
+    <div class="modal" id="login-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Masuk ke HidupKu</h3>
+                <button class="modal-close" id="login-close">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="login-form">
+                    <div class="form-group">
+                        <label for="login-email">Email</label>
+                        <input type="email" id="login-email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="login-password">Password</label>
+                        <input type="password" id="login-password" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-full">Masuk</button>
+                </form>
+                <div class="modal-footer">
+                    <p>Belum punya akun? <a href="#" id="show-register">Daftar di sini</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Register Modal -->
+    <div class="modal" id="register-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Daftar ke HidupKu</h3>
+                <button class="modal-close" id="register-close">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="register-form">
+                    <div class="form-group">
+                        <label for="register-name">Nama Lengkap</label>
+                        <input type="text" id="register-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="register-email">Email</label>
+                        <input type="email" id="register-email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="register-password">Password</label>
+                        <input type="password" id="register-password" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-full">Daftar</button>
+                </form>
+                <div class="modal-footer">
+                    <p>Sudah punya akun? <a href="#" id="show-login">Masuk di sini</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loading-overlay">
+        <div class="loading-spinner">
+            <i class="fas fa-spinner fa-spin"></i>
+            <p>Memproses...</p>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html> 
