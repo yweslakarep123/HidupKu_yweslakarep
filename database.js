@@ -115,6 +115,15 @@ const Message = sequelize.define('Message', {
   timestamps: false
 });
 
+// Minimal table for medicine search service
+const MedicineProduct = sequelize.define('MedicineProduct', {
+  title: { type: DataTypes.STRING(500), allowNull: false, unique: true },
+  description: { type: DataTypes.TEXT, allowNull: false }
+}, {
+  tableName: 'obat_bebas_dan_bebas_terbatas___products',
+  timestamps: false
+});
+
 // Associations
 User.hasMany(ChatSession, { foreignKey: 'user_id' });
 ChatSession.belongsTo(User, { foreignKey: 'user_id' });
@@ -127,6 +136,15 @@ async function testConnection() {
     await sequelize.authenticate();
     // Auto sync tables if they don't exist
     await sequelize.sync();
+    // Seed minimal medicines table if empty (optional, small demo seed)
+    const count = await MedicineProduct.count();
+    if (count === 0) {
+      await MedicineProduct.bulkCreate([
+        { title: 'Paramex', description: 'Obat analgesik untuk sakit kepala dan demam.' },
+        { title: 'Antangin', description: 'Herbal untuk masuk angin, mual, perut kembung.' },
+        { title: 'Vitamin C 500mg', description: 'Suplemen vitamin C untuk daya tahan tubuh.' }
+      ]);
+    }
     console.log('✅ Database MySQL (Sequelize) berhasil terhubung dan sinkron');
     return true;
   } catch (error) {
