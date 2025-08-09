@@ -6,7 +6,13 @@ dotenv.config({ path: './config.env' });
 
 // Build database configuration (supporting Railway and URL-based env)
 function buildDbConfig() {
-  const url = process.env.DATABASE_URL || process.env.CLEARDB_DATABASE_URL || process.env.JAWSDB_URL || '';
+  const url =
+    process.env.DATABASE_URL ||
+    process.env.MYSQL_URL ||
+    process.env.MYSQL_PUBLIC_URL ||
+    process.env.CLEARDB_DATABASE_URL ||
+    process.env.JAWSDB_URL ||
+    '';
   if (url) {
     try {
       const parsed = new URL(url);
