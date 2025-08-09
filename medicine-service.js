@@ -1,5 +1,8 @@
-import mysql from 'mysql2/promise';
 import dotenv from 'dotenv';
+import fs from 'fs/promises';
+import { parse } from 'csv-parse/sync';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
 import { GoogleGenAI } from '@google/genai';
 
 // Load environment variables (only from file in non-production)
@@ -7,39 +10,28 @@ if (process.env.NODE_ENV !== 'production') {
   dotenv.config({ path: './config.env' });
 }
 
-// Build DB config with Railway-friendly precedence
-function buildDbConfig() {
-  const url =
-    process.env.bismillah ||
-    process.env.BISMILLAH ||
-    process.env.DATABASE_URL ||
-    process.env.MYSQL_URL ||
-    process.env.MYSQL_PUBLIC_URL ||
-    '';
-  if (url) {
-    try {
-      const parsed = new URL(url);
-      return {
-        host: parsed.hostname,
-        user: parsed.username,
-        password: parsed.password,
-        database: parsed.pathname?.replace(/^\//, '') || undefined,
-        port: Number(parsed.port || 3306)
-      };
-    } catch (_) {
-      // ignore and fall back below
-    }
-  }
-  return {
-    host: process.env.MYSQL_HOST || process.env.MYSQLHOST || '127.0.0.1',
-    user: process.env.MYSQL_USER || process.env.MYSQLUSER || 'root',
-    password: process.env.MYSQL_PASSWORD || process.env.MYSQLPASSWORD || '',
-    database: process.env.MYSQL_DATABASE || process.env.MYSQLDATABASE || 'hidupku_db',
-    port: Number(process.env.MYSQL_PORT || process.env.MYSQLPORT || 3306)
-  };
-}
+// Resolve dataset path and loader (CSV)
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const DATASET_PATH = join(__dirname, 'Obat_Bebas dan Bebas_Terbatas - products.csv');
 
-const dbConfig = buildDbConfig();
+let medicineDataset = null; // cache
+async function loadMedicineDataset() {
+  if (medicineDataset) return medicineDataset;
+  try {
+    const fileContent = await fs.readFile(DATASET_PATH, 'utf-8');
+    const rows = parse(fileContent, { columns: true, skip_empty_lines: true });
+    medicineDataset = rows.map(r => ({
+      title: String(r.title || r.Title || '').trim(),
+      description: String(r.description || r.Description || '').trim()
+    })).filter(r => r.title && r.description);
+    console.log(`[Medicine] Loaded dataset: ${medicineDataset.length} items`);
+  } catch (err) {
+    console.error('[Medicine] Failed to load dataset CSV:', err.message);
+    medicineDataset = [];
+  }
+  return medicineDataset;
+}
 
 // Initialize Gemini AI
 const genAI = new GoogleGenAI({
@@ -143,65 +135,24 @@ function extractCategory(description) {
 export const medicineService = {
   // Enhanced search medicines using Gemini AI and advanced NLP
   async searchMedicines(query, type = '', category = '') {
-    let connection;
-    
     try {
-      connection = await mysql.createConnection(dbConfig);
-      
-      // Tokenize the query
+      const dataset = await loadMedicineDataset();
       const queryTokens = tokenizeText(query);
-      
       if (queryTokens.length === 0 && !type && !category) {
         return [];
       }
-      
-      // Build the base query with improved search
-      let sql = 'SELECT title, description FROM obat_bebas_dan_bebas_terbatas___products WHERE 1=1';
-      const params = [];
-      
-      // Enhanced search conditions if query provided
+      // Candidate filter by text
+      let candidates = dataset;
       if (queryTokens.length > 0) {
-        // Use more sophisticated search patterns
-        const searchConditions = [];
-        
-        // Exact phrase match (highest priority)
-        searchConditions.push(`(title LIKE ? OR description LIKE ?)`);
-        params.push(`%${query}%`, `%${query}%`);
-        
-        // Individual token matches
-        queryTokens.forEach(token => {
-          if (token.length > 2) {
-            searchConditions.push(`(title LIKE ? OR description LIKE ?)`);
-            params.push(`%${token}%`, `%${token}%`);
-          }
+        const lowerQuery = (query || '').toLowerCase();
+        candidates = candidates.filter(row => {
+          const text = `${row.title} ${row.description}`.toLowerCase();
+          return text.includes(lowerQuery) || queryTokens.some(t => text.includes(t));
         });
-        
-        // Synonym and related terms (using Gemini AI)
-        try {
-          const synonyms = await this.getQuerySynonyms(query);
-          console.log(`Generated synonyms for "${query}":`, synonyms);
-          if (synonyms.length > 0) {
-            console.log(`Query expansion: "${query}" → [${synonyms.join(', ')}]`);
-          }
-          synonyms.forEach(synonym => {
-            if (synonym.length > 2) {
-              searchConditions.push(`(title LIKE ? OR description LIKE ?)`);
-              params.push(`%${synonym}%`, `%${synonym}%`);
-            }
-          });
-        } catch (error) {
-          console.log('Synonym generation failed, continuing with basic search');
-        }
-        
-        sql += ` AND (${searchConditions.join(' OR ')})`;
       }
-      
-      // Execute query
-      const [rows] = await connection.execute(sql, params);
-      
       // Enhanced processing with Gemini AI
-      console.log(`Processing ${rows.length} medicines with AI...`);
-      const results = await Promise.all(rows.map(async (row, index) => {
+      console.log(`Processing ${candidates.length} medicines with AI...`);
+      const results = await Promise.all(candidates.map(async (row, index) => {
         const relevanceScore = await this.calculateEnhancedRelevanceScore(query, row.title, row.description);
         const medicineType = determineMedicineType(row.title, row.description);
         const categoryName = extractCategory(row.description);
@@ -251,14 +202,9 @@ export const medicineService = {
       console.log(`==============================`);
       
       return finalResults;
-      
     } catch (error) {
       console.error('Error searching medicines:', error);
       throw error;
-    } finally {
-      if (connection) {
-        await connection.end();
-      }
     }
   },
 
@@ -336,21 +282,10 @@ export const medicineService = {
 
   // Get medicine by ID (using title as ID)
   async getMedicineById(id) {
-    let connection;
-    
     try {
-      connection = await mysql.createConnection(dbConfig);
-      
-      const [rows] = await connection.execute(
-        'SELECT title, description FROM obat_bebas_dan_bebas_terbatas___products WHERE title = ?',
-        [id]
-      );
-      
-      if (rows.length === 0) {
-        return null;
-      }
-      
-      const row = rows[0];
+      const dataset = await loadMedicineDataset();
+      const row = dataset.find(r => r.title === id);
+      if (!row) return null;
       const medicineType = determineMedicineType(row.title, row.description);
       const categoryName = extractCategory(row.description);
       
@@ -365,25 +300,14 @@ export const medicineService = {
     } catch (error) {
       console.error('Error getting medicine by ID:', error);
       throw error;
-    } finally {
-      if (connection) {
-        await connection.end();
-      }
     }
   },
 
   // Get medicines by type
   async getMedicinesByType(type) {
-    let connection;
-    
     try {
-      connection = await mysql.createConnection(dbConfig);
-      
-      const [rows] = await connection.execute(
-        'SELECT title, description FROM obat_bebas_dan_bebas_terbatas___products'
-      );
-      
-      const results = rows
+      const dataset = await loadMedicineDataset();
+      const results = dataset
         .map(row => {
           const medicineType = determineMedicineType(row.title, row.description);
           const categoryName = extractCategory(row.description);
@@ -403,45 +327,23 @@ export const medicineService = {
     } catch (error) {
       console.error('Error getting medicines by type:', error);
       throw error;
-    } finally {
-      if (connection) {
-        await connection.end();
-      }
     }
   },
 
   // Get medicine categories (extracted from descriptions)
   async getMedicineCategories() {
-    let connection;
-    
     try {
-      connection = await mysql.createConnection(dbConfig);
-      
-      // Test connection first
-      await connection.ping();
-      console.log('Database connection successful for categories');
-      
-      const [rows] = await connection.execute(
-        'SELECT DISTINCT description FROM obat_bebas_dan_bebas_terbatas___products LIMIT 100'
-      );
-      
+      const dataset = await loadMedicineDataset();
       const categories = new Set();
-      rows.forEach(row => {
+      dataset.slice(0, 2000).forEach(row => {
         const category = extractCategory(row.description);
         categories.add(category);
       });
-      
-      const result = Array.from(categories).map((name, index) => ({
-        id: index + 1,
-        name: name
-      }));
-      
-      console.log(`Found ${result.length} medicine categories from database`);
+      const result = Array.from(categories).map((name, index) => ({ id: index + 1, name }));
+      console.log(`Found ${result.length} medicine categories from dataset`);
       return result;
-      
     } catch (error) {
-      console.error('Error getting medicine categories from database:', error);
-      // Return default categories if database is not available
+      console.error('Error getting medicine categories from dataset:', error);
       const defaultCategories = [
         { id: 1, name: 'Analgesik' },
         { id: 2, name: 'Antihistamin' },
@@ -451,26 +353,13 @@ export const medicineService = {
         { id: 6, name: 'Obat Pencernaan' },
         { id: 7, name: 'Obat Umum' }
       ];
-      console.log('Using default categories due to database error');
       return defaultCategories;
-    } finally {
-      if (connection) {
-        try {
-          await connection.end();
-        } catch (endError) {
-          console.error('Error closing database connection:', endError);
-        }
-      }
     }
   },
 
   // Get medicines by category
   async getMedicinesByCategory(categoryId) {
-    let connection;
-    
     try {
-      connection = await mysql.createConnection(dbConfig);
-      
       // First get the category name
       const categories = await this.getMedicineCategories();
       const category = categories.find(cat => cat.id == categoryId);
@@ -478,12 +367,8 @@ export const medicineService = {
       if (!category) {
         return [];
       }
-      
-      const [rows] = await connection.execute(
-        'SELECT title, description FROM obat_bebas_dan_bebas_terbatas___products'
-      );
-      
-      const results = rows
+      const dataset = await loadMedicineDataset();
+      const results = dataset
         .map(row => {
           const medicineType = determineMedicineType(row.title, row.description);
           const categoryName = extractCategory(row.description);
@@ -503,27 +388,15 @@ export const medicineService = {
     } catch (error) {
       console.error('Error getting medicines by category:', error);
       throw error;
-    } finally {
-      if (connection) {
-        await connection.end();
-      }
     }
   },
 
   // Get popular keywords (extracted from titles and descriptions)
   async getPopularKeywords() {
-    let connection;
-    
     try {
-      connection = await mysql.createConnection(dbConfig);
-      
-      const [rows] = await connection.execute(
-        'SELECT title, description FROM obat_bebas_dan_bebas_terbatas___products'
-      );
-      
+      const dataset = await loadMedicineDataset();
       const keywordCount = new Map();
-      
-      rows.forEach(row => {
+      dataset.forEach(row => {
         const titleTokens = tokenizeText(row.title);
         const descTokens = tokenizeText(row.description);
         
@@ -546,10 +419,6 @@ export const medicineService = {
     } catch (error) {
       console.error('Error getting popular keywords:', error);
       throw error;
-    } finally {
-      if (connection) {
-        await connection.end();
-      }
     }
   }
 }; 
